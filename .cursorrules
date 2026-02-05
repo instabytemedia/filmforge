@@ -1,0 +1,102 @@
+# FilmForge - Cursor Rules
+
+## Project Overview
+FilmForge is a community_platform built with Next.js 14 (App Router), TypeScript, Tailwind CSS, and Supabase.
+
+**Core Entities:** Server, Channel, Message, User
+**Key Features:** auth:must, daily_movie_practice:must, servers_and_channels:must, blockchain_verification:must, discussion_forums:must, user_profile:must, movie_library:should, user_profiles:should, event_calendar:should, resource_library:should, community_badges:must, movie_recommendations:must
+**Target Audience:** Entrepreneurs and movie enthusiasts
+
+## Tech Stack
+- **Framework:** Next.js 14 with App Router
+- **Language:** TypeScript (strict mode)
+- **Styling:** Tailwind CSS + shadcn/ui components
+- **Database:** Supabase (PostgreSQL)
+- **Auth:** Supabase Auth
+
+
+
+
+
+## Code Style Guidelines
+
+### TypeScript
+- Use strict TypeScript with no `any` types
+- Define interfaces/types in `types/` or co-locate with components
+- Use Zod for runtime validation
+- Prefer `type` over `interface` for object types
+
+### React/Next.js
+- Use Server Components by default
+- Only use `'use client'` when necessary (interactivity, hooks)
+- Prefer Server Actions for mutations
+- Use `loading.tsx` and `error.tsx` for loading states
+
+### File Organization
+```
+app/
+├── (app)/           # Authenticated routes
+├── (public)/        # Public routes
+├── api/             # API routes (minimal, prefer Server Actions)
+components/
+├── ui/              # shadcn/ui components
+├── [feature]/       # Feature-specific components
+lib/
+├── supabase/        # Supabase client setup
+├── utils/           # Helper functions
+hooks/               # Custom React hooks
+types/               # TypeScript types
+```
+
+### Database
+- Use Supabase client for all DB operations
+- Enable RLS on all tables
+- Use `created_at` and `updated_at` on all tables
+- Prefix indexes with table name: `tablename_column_idx`
+
+### API Design
+- Use Server Actions for mutations when possible
+- For API routes: validate with Zod, return consistent shapes
+- Error format: `{ error: { code: string, message: string } }`
+- Success format: `{ data: T }` or `{ data: T, meta: {...} }`
+
+### Component Patterns
+- Use `cn()` helper for conditional classes
+- Keep components small and focused
+- Extract hooks for complex state logic
+- Use composition over props drilling
+
+## Common Tasks
+
+### Create a new entity page
+1. Add schema to `supabase/schema.sql`
+2. Create API route in `app/api/[entity]s/route.ts`
+3. Create page in `app/(app)/[entity]s/page.tsx`
+4. Add components in `components/[entity]/`
+
+### Add authentication check
+```typescript
+const supabase = await createClient();
+const { data: { user } } = await supabase.auth.getUser();
+if (!user) redirect('/login');
+```
+
+### Create Server Action
+```typescript
+'use server'
+import { createClient } from '@/lib/supabase/server';
+import { revalidatePath } from 'next/cache';
+
+export async function createItem(formData: FormData) {
+  const supabase = await createClient();
+  // ... implementation
+  revalidatePath('/items');
+}
+```
+
+## Don'ts
+- Don't use `any` type
+- Don't disable ESLint rules without good reason
+- Don't commit `.env.local` or secrets
+- Don't use client components when server components work
+- Don't bypass RLS policies
