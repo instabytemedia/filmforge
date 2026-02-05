@@ -1,0 +1,58 @@
+# Docker Compose for local development
+# Run: docker-compose up -d
+
+version: "3.8"
+
+services:
+  # Local Supabase PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: filmforge-db
+    restart: unless-stopped
+    ports:
+      - "54322:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: filmforge
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./supabase/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Supabase Studio (optional - for local DB management)
+  # studio:
+  #   image: supabase/studio:latest
+  #   container_name: filmforge-studio
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3001:3000"
+  #   environment:
+  #     SUPABASE_URL: http://localhost:54321
+  #     STUDIO_PG_META_URL: http://localhost:54322
+  #   depends_on:
+  #     - db
+
+  # Redis (for caching/sessions if needed)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: filmforge-redis
+  #   restart: unless-stopped
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+
+volumes:
+  postgres_data:
+  # redis_data:
+
+# Usage:
+# 1. Start services: docker-compose up -d
+# 2. Connect to DB: postgresql://postgres:postgres@localhost:54322/filmforge
+# 3. Stop services: docker-compose down
+# 4. Reset DB: docker-compose down -v && docker-compose up -d
