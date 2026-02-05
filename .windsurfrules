@@ -1,0 +1,162 @@
+# FilmForge - Windsurf Rules
+
+## Project Context
+**Name:** FilmForge
+**Type:** community_platform
+**Description:** A blockchain-verified community platform for entrepreneurs to connect, discuss, and learn from movies
+
+## Architecture
+
+### Stack
+| Layer | Technology |
+|-------|------------|
+| Frontend | Next.js 14 (App Router) |
+| Language | TypeScript (strict) |
+| Styling | Tailwind CSS + shadcn/ui |
+| Database | Supabase (PostgreSQL) |
+| Auth | Supabase Auth |
+
+
+
+
+
+### Core Entities
+- **Server**: id, created_at, updated_at, user_id, name, description
+- **Channel**: id, created_at, updated_at, user_id, name, description
+- **Message**: id, created_at, updated_at, user_id, content
+- **User**: id, created_at, updated_at, user_id, username, email
+
+### Key Features
+- auth:must
+- daily_movie_practice:must
+- servers_and_channels:must
+- blockchain_verification:must
+- discussion_forums:must
+- user_profile:must
+- movie_library:should
+- user_profiles:should
+- event_calendar:should
+- resource_library:should
+- community_badges:must
+- movie_recommendations:must
+
+## Coding Standards
+
+### File Naming
+- Components: `PascalCase.tsx`
+- Utilities: `kebab-case.ts`
+- Types: `types.ts` or `[feature].types.ts`
+- Hooks: `use-[name].ts`
+
+### TypeScript Rules
+```typescript
+// ✅ Good
+type User = {
+  id: string;
+  email: string;
+  createdAt: Date;
+};
+
+// ❌ Bad
+interface User {
+  id: any;
+  email: any;
+}
+```
+
+### Component Structure
+```typescript
+// 1. Imports
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+
+// 2. Types
+type Props = {
+  title: string;
+  onAction?: () => void;
+};
+
+// 3. Component
+export function MyComponent({ title, onAction }: Props) {
+  // hooks first
+  const [state, setState] = useState(false);
+
+  // handlers
+  const handleClick = () => {
+    setState(true);
+    onAction?.();
+  };
+
+  // render
+  return (
+    <div className="p-4">
+      <h1>{title}</h1>
+      <button onClick={handleClick}>Action</button>
+    </div>
+  );
+}
+```
+
+### Supabase Patterns
+```typescript
+// Server Component
+import { createClient } from '@/lib/supabase/server';
+
+export default async function Page() {
+  const supabase = await createClient();
+  const { data } = await supabase.from('items').select('*');
+  return <ItemList items={data} />;
+}
+
+// Client Component
+'use client';
+import { createClient } from '@/lib/supabase/client';
+
+export function ClientComponent() {
+  const supabase = createClient();
+  // ...
+}
+```
+
+## Project Structure
+```
+├── app/
+│   ├── (app)/              # Protected routes
+│   │   ├── dashboard/
+│   │   ├── settings/
+│   │   └── layout.tsx      # Auth check
+│   ├── (public)/           # Public routes
+│   │   ├── page.tsx        # Landing
+│   │   └── login/
+│   ├── api/                # API routes
+│   └── layout.tsx          # Root layout
+├── components/
+│   ├── ui/                 # shadcn components
+│   └── [feature]/          # Feature components
+├── lib/
+│   ├── supabase/
+│   │   ├── client.ts
+│   │   ├── server.ts
+│   │   └── middleware.ts
+│   └── utils.ts
+├── hooks/
+├── types/
+└── supabase/
+    └── schema.sql
+```
+
+## Quality Checklist
+- [ ] TypeScript strict mode, no `any`
+- [ ] Zod validation for all inputs
+- [ ] RLS policies on all tables
+- [ ] Loading and error states
+- [ ] Mobile responsive
+- [ ] Accessible (ARIA labels, semantic HTML)
+
+## Commands
+```bash
+npm run dev      # Start dev server
+npm run build    # Production build
+npm run lint     # Run ESLint
+npm run typecheck # TypeScript check
+```
